@@ -1,0 +1,6 @@
+@API_Seguridad_HostAddress = http://localhost:5062
+
+GET {{API_Seguridad_HostAddress}}/api/User/15
+Accept: application/json
+
+###
