@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
             {
                 var passHash = ComputeSha256Hash(credentials.Password);
 
-                var userLogin = _users.Find(x => x.Username == credentials.UserName && x.Hash == passHash);
+                var userLogin = _users.Find(x => x.Username == credentials.UserName && x.Hash == passHash && x.Status == true);
 
                 if (userLogin == null)
                 {
@@ -179,40 +179,37 @@ namespace WebAPI.Controllers
 
         private static readonly List<UserLogin> _users = new List<UserLogin>
         {
-        new UserLogin() {
-            IdUsuario= "4AB4742F-5AB1-4BCC-9CE6-27B2DF1D73D2",
-            Username = "superadmin",
-            Password ="p6%aYh#0R7R@TkfeMA8.UW?L",
-            Hash = "a956de955a3ab4b6f69ecab125a64ed05551fcbcba1921c5ae64649b2ad25e50",
-            Roles = ["admin"]
-        },
-        new UserLogin() {
-            IdUsuario="3F69F3BB-5D6D-416C-923F-E07C483F1704",
-            Username = "admin",
-            Password ="V3r0n1k4.",
-            Hash = "d1e11658b660daf0179191557a95280c82002f3df70f6766e614e7d8da35229b",
-            Roles = ["create","find","edit","delete","details"]
-        },
-        new UserLogin() {
-            IdUsuario="8C3E441A-0EE4-43DF-BC64-2253A0396C80",
-            Username = "search",
-            Password ="c0nsult4.",
-            Hash = "fcd04d9a7dfae7fe9125c8b3dc678659917c7362d9eaf470730de7ff94ddc366",
-            Roles = ["find", "details"]
-        },
-        new UserLogin() {
-            IdUsuario="1F5E277C-B56C-4A39-9616-AD7BCAF18B43",
-            Username = "test",
-            Password ="12345",
-            Hash = "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
-            Roles = ["create","find","edit","delete","details"]
-        }, new UserLogin() {
-            IdUsuario="56E7E953-9025-44B0-8FB5-2F0846CD3DD5",
-            Username = "desarrollo",
-            Password ="12345",
-            Hash = "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
-            Roles = ["admin"]
-        }
+            new UserLogin() {
+                IdUsuario= "4AB4742F-5AB1-4BCC-9CE6-27B2DF1D73D2",
+                Username = "superadmin",
+                Password ="p6%aYh#0R7R@TkfeMA8.UW?L",
+                Hash = "a956de955a3ab4b6f69ecab125a64ed05551fcbcba1921c5ae64649b2ad25e50",
+                Roles = ["admin"],
+                Status = false
+            },
+            new UserLogin() {
+                IdUsuario="3F69F3BB-5D6D-416C-923F-E07C483F1704",
+                Username = "admin",
+                Password ="v3r0n1k4.",
+                Hash = "d1e11658b660daf0179191557a95280c82002f3df70f6766e614e7d8da35229b",
+                Roles = ["create","find","edit","delete","details"],
+                Status = false
+            },
+            new UserLogin() {
+                IdUsuario="1F5E277C-B56C-4A39-9616-AD7BCAF18B43",
+                Username = "test",
+                Password ="12345",
+                Hash = "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
+                Roles = ["create","find","edit","delete","details"],
+                Status = true
+            }, new UserLogin() {
+                IdUsuario="56E7E953-9025-44B0-8FB5-2F0846CD3DD5",
+                Username = "desarrollo",
+                Password ="12345",
+                Hash = "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
+                Roles = ["admin"],
+                Status = true
+            }
         };
 
         #endregion
@@ -225,6 +222,7 @@ namespace WebAPI.Controllers
         public required string Password { get; set; }
         public required string Hash { get; set; }
         public required List<string> Roles { get; set; }
+        public required bool Status { get; set; }
 
     }
 }

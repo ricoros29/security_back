@@ -120,6 +120,12 @@ namespace Seguridad_API.Controllers
             {
                 switch (cat)
                 {
+                    case "dependenciaorigen":
+                        list = await _context.catdependenciaorigens
+                            .Where(x => x.estatus == true && x.idestado == id)
+                            .Select(o => new SelectListItem(o.descripcion, o.iddependenciaorigen.ToString()))
+                            .ToListAsync();
+                        break;
                     case "roles":
                         list = await _context.seguridad_roles
                             .Where(x => x.estatus == true && x.idmodulo == id)
