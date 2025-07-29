@@ -38,6 +38,7 @@ namespace Seguridad_API.Server.Controllers
 
         [HttpPost]
         [Route("Create")]
+        [Authorize(Roles = "superadmin,admin,create")]
         public async Task<ActionResult<UserDTO>> Post(UserDTO? userDTO)
         {
             if (userDTO is null || !ModelState.IsValid)
@@ -137,6 +138,7 @@ namespace Seguridad_API.Server.Controllers
 
         [HttpPut]
         [Route("Edit/{id}")]
+        [Authorize(Roles = "superadmin,admin,edit")]
         public async Task<ActionResult<bool>> Put([FromRoute] int id, [FromBody] UserFindDTO userDTO)
         {
             if (userDTO is null || !ModelState.IsValid)
@@ -229,6 +231,7 @@ namespace Seguridad_API.Server.Controllers
 
         [HttpPut]
         [Route("Reset/{id}")]
+        [Authorize(Roles = "superadmin,admin,reset")]
         public async Task<ActionResult<bool>> Reset([FromRoute] int id, [FromBody] ResetDTO resetDTO)
         {
             if (resetDTO is null || !ModelState.IsValid)
@@ -241,7 +244,7 @@ namespace Seguridad_API.Server.Controllers
             }
             else if (resetDTO.Password != resetDTO.PasswordConfirm)
             {
-                return BadRequest("El password y la confirmación de password no coinciden.");
+                return BadRequest("La contraseña y su confirmación no coinciden.");
             }
 
             try
@@ -274,9 +277,10 @@ namespace Seguridad_API.Server.Controllers
             }
         }
 
-        [HttpGet("{id:int}")]
-        [Route("GetUserById")]
-        public async Task<ActionResult<UserFindDTO>> Get([FromQuery] int id)
+        [HttpGet]
+        [Route("GetUserById/{id:int}")]
+        [Authorize(Roles = "superadmin,admin,find")]
+        public async Task<ActionResult<UserFindDTO>> Get([FromRoute] int id)
         {
             if (id <= 0)
             {
@@ -304,8 +308,9 @@ namespace Seguridad_API.Server.Controllers
         }
 
         [HttpGet]
-        [Route("FindUsers")]
-        public async Task<ActionResult<List<UserFindDTO>>> FindUsers([FromQuery] string texto)
+        [Route("FindUsers/{texto:alpha}")]
+        [Authorize(Roles = "superadmin,admin,find")]
+        public async Task<ActionResult<List<UserFindDTO>>> FindUsers([FromRoute] string texto)
         {
             if (string.IsNullOrEmpty(texto) || texto.Length < 3)
             {
@@ -335,8 +340,9 @@ namespace Seguridad_API.Server.Controllers
             }
         }
 
-        [Route("ExistAccount")]
-        public async Task<ActionResult<bool>> ExistAccount([FromQuery] string account)
+        [Route("ExistAccount/{account:alpha}")]
+        [Authorize(Roles = "superadmin,admin,find")]
+        public async Task<ActionResult<bool>> ExistAccount([FromRoute] string account)
         {
             if (string.IsNullOrEmpty(account) || account.Length < 5)
             {

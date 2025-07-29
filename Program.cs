@@ -42,6 +42,20 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
 });
 
+var urls = builder.Configuration["CorsOrigins"] != null ? builder.Configuration["CorsOrigins"].Split(';', StringSplitOptions.RemoveEmptyEntries) : throw new InvalidOperationException("CorsOrigins Not Found.");
+
+//Configurar CORS
+builder.Services.AddCors(opciones =>
+{
+    opciones.AddPolicy(name: "CorsPolicy", builder =>
+    {
+        builder
+        .WithOrigins(urls)
+        .WithMethods("GET", "POST", "PUT", "OPTIONS")
+        .WithHeaders("Origin", "X-Requested-With", "Content-Type", "Accept", "Authorization");
+    });
+});
+
 
 var app = builder.Build();
 
@@ -54,6 +68,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+app.UseCors("CorsPolicy");
 app.UseAuthorization();
 app.UseEndpoints(endpoints =>
 {

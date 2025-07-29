@@ -192,7 +192,7 @@ namespace WebAPI.Controllers
                 Username = "admin",
                 Password ="v3r0n1k4.",
                 Hash = "d1e11658b660daf0179191557a95280c82002f3df70f6766e614e7d8da35229b",
-                Roles = ["create","find","edit","delete","details"],
+                Roles = ["create","find","edit","reset","details"],
                 Status = false
             },
             new UserLogin() {
@@ -200,9 +200,9 @@ namespace WebAPI.Controllers
                 Username = "test",
                 Password ="12345",
                 Hash = "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
-                Roles = ["create","find","edit","delete","details"],
+                Roles = ["create","edit","find","reset","details"],
                 Status = true
-            }, new UserLogin() {
+            },new UserLogin() {
                 IdUsuario="56E7E953-9025-44B0-8FB5-2F0846CD3DD5",
                 Username = "desarrollo",
                 Password ="12345",

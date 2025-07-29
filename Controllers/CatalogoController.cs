@@ -26,7 +26,9 @@ namespace Seguridad_API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<SelectListItem>>> Get([FromQuery] string cat, int? id = null)
+        [Route("{cat:alpha}/{id:int?}")]
+        [Authorize(Roles = "superadmin,admin,find")]
+        public async Task<ActionResult<List<SelectListItem>>> Get([FromRoute] string cat, int? id = null)
         {
             List<SelectListItem>? list = null;
 
@@ -66,8 +68,8 @@ namespace Seguridad_API.Controllers
             }
         }
 
-        #region Helpers
 
+        #region Helpers
 
         private async Task<List<SelectListItem>> GetCatalogo(string cat)
         {
@@ -141,7 +143,6 @@ namespace Seguridad_API.Controllers
                 throw;
             }
         }
-
 
         #endregion
 
