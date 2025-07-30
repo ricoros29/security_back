@@ -48,7 +48,7 @@ namespace Seguridad_API.Server.Controllers
 
             try
             {
-                var Existe = await _context.seguridad_usuarios.AnyAsync(x => x.cuenta!.ToUpper() == userDTO.Cuenta!.ToUpper());
+                var Existe = await ExistUserAccount(userDTO.Cuenta);
 
                 if (Existe)
                 {
@@ -308,7 +308,7 @@ namespace Seguridad_API.Server.Controllers
         }
 
         [HttpGet]
-        [Route("FindUsers/{texto:alpha}")]
+        [Route("FindUsers/{texto}")]
         [Authorize(Roles = "superadmin,admin,find")]
         public async Task<ActionResult<List<UserFindDTO>>> FindUsers([FromRoute] string texto)
         {
@@ -340,18 +340,19 @@ namespace Seguridad_API.Server.Controllers
             }
         }
 
-        [Route("ExistAccount/{account:alpha}")]
+        [HttpGet]
+        [Route("ExistAccount/{account}")]
         [Authorize(Roles = "superadmin,admin,find")]
         public async Task<ActionResult<bool>> ExistAccount([FromRoute] string account)
         {
             if (string.IsNullOrEmpty(account) || account.Length < 5)
             {
-                return BadRequest("Debe indicar al menos 3 caracteres de la Cuenta de usuario.");
+                return BadRequest("Debe indicar al menos 5 caracteres de la Cuenta de usuario.");
             }
 
             try
             {
-                bool ExisteCuenta = await _context.seguridad_usuarios.AnyAsync(x => x.cuenta.ToUpper() == account.ToUpper());
+                bool ExisteCuenta = await ExistUserAccount(account);
 
                 return Ok(ExisteCuenta);
             }
@@ -361,178 +362,6 @@ namespace Seguridad_API.Server.Controllers
                 throw;
             }
         }
-
-
-        //[HttpGet]
-        //public async Task<ActionResult<List<UserDTO>>> Get([FromQuery] UsuarioFiltroDTO usuarioFiltroDTO)
-        //{
-
-        //    var users = await GetUsersByName(usuarioFiltroDTO);
-
-        //    if (users == null || users.Count == 0)
-        //    {
-        //        return BadRequest($"No hay coincidencias con el nombre {usuarioFiltroDTO.Nombre} {usuarioFiltroDTO.PrimerApellido} {usuarioFiltroDTO.SegundoApellido}.");
-        //    }
-        //    else
-        //    {
-        //        return users;
-        //    }
-        //}
-
-        //[HttpPost]
-        //public async Task<ActionResult<UsuarioNuevoDTO>> Post(UsuarioNuevoDTO usuarioNuevoDTO)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return BadRequest();
-        //    }
-
-        //    //Clonar
-        //    var newUserDTO = (UsuarioNuevoDTO)usuarioNuevoDTO.Clone();
-
-        //    //Convertir a mayusculas
-        //    newUserDTO.Nombre = newUserDTO.Nombre.Trim().ToUpper();
-        //    newUserDTO.ApellidoPaterno = newUserDTO.ApellidoPaterno.Trim().ToUpper();
-        //    newUserDTO.ApellidoMaterno = newUserDTO.ApellidoMaterno.Trim().ToUpper();
-        //    newUserDTO.Cargo = newUserDTO.Cargo.Trim().ToUpper();
-        //    newUserDTO.Rfc = newUserDTO.Rfc.Trim().ToUpper();
-        //    newUserDTO.UnidadAdministrativa = newUserDTO.UnidadAdministrativa.Trim().ToUpper();
-
-        //    //Mapear
-        //    var user = _mapper.Map<seguridad_usuario>(newUserDTO);
-
-        //    var ExisteUsuario = await _context.seguridad_usuarios.AnyAsync(x => x.nombre == newUserDTO.Nombre && x.apellidopaterno == newUserDTO.ApellidoPaterno && x.apellidomaterno == newUserDTO.ApellidoMaterno);
-
-        //    if (ExisteUsuario)
-        //    {
-        //        return BadRequest(new { error = $"Ya existe un usuario con el nombre {newUserDTO.Nombre} {newUserDTO.ApellidoPaterno} {newUserDTO.ApellidoMaterno}." });
-        //    }
-
-        //    var ExisteRol = _context.seguridad_roles.Where(x => x.idrol == newUserDTO.IdRol && x.estatus == true);
-
-        //    if (ExisteRol == null)
-        //    {
-        //        return BadRequest(new { error = $"El idRol {newUserDTO.IdRol} no existe." });
-        //    }
-
-        //    //Crear cuenta
-        //    var cuenta = string.IsNullOrEmpty(newUserDTO.Cuenta) ? await CreateCuenta(newUserDTO) : newUserDTO.Cuenta;
-
-        //    //Obtener IdUsuario
-        //    var idUser = await GetNextIdUser();
-
-        //    //Generar Password
-        //    var password = string.IsNullOrEmpty(newUserDTO.Password) ? await CreatePassword(newUserDTO.Nombre, newUserDTO.ApellidoPaterno, newUserDTO.ApellidoMaterno, idUser) : newUserDTO.Password;
-
-        //    //Encriptar Password
-        //    var passEncript = password;
-        //    EncriptarPassword(ref passEncript);
-
-        //    var FechaActual = DateTime.Now;
-
-        //    //Asignar nuevos valores a insertar y default
-        //    user.idusuario = idUser;
-        //    user.noempleado = idUser.ToString();
-        //    user.password = passEncript;
-        //    user.accesosinrestriccion = true;
-        //    user.restringidoenhorario = false;
-        //    user.restringidoenip = false;
-        //    user.sesionactiva = false;
-        //    user.estatus = true;
-        //    user.fecharegistro = FechaActual;
-
-        //    using (var transacction = _context.Database.BeginTransaction())
-        //    {
-        //        try
-        //        {
-        //            _context.seguridad_usuarios.Add(user);
-        //            //await _context.SaveChangesAsync();
-
-        //            var role = new seguridad_usuario_role();
-        //            role.idusuario = idUser;
-        //            role.idrol = newUserDTO.IdRol.Value;
-        //            role.fechacpatura = FechaActual;
-        //            role.estatus = true;
-
-        //            _context.seguridad_usuario_roles.Add(role);
-        //            //await _context.SaveChangesAsync();
-
-        //            //await transacction.CommitAsync();
-        //        }
-        //        catch (Exception)
-        //        {
-        //            if (transacction != null)
-        //            {
-        //                transacction.Rollback();
-        //            }
-
-        //            throw;
-        //        }
-        //    }
-
-
-        //    var userCreated = _mapper.Map<UserCreatedDTO>(newUserDTO);
-        //    userCreated.Cuenta = cuenta;
-        //    userCreated.Password = password;
-
-        //    var locationUri = $"{Request.Host}/api/user/{idUser}";
-
-        //    return Created(locationUri, userCreated);
-        //}
-
-        //[HttpPut("ResetearPassword/{idUsuario}")]
-        //public async Task<ActionResult> Put(int idUsuario)
-        //{
-        //    try
-        //    {
-        //        var user = await _context.seguridad_usuarios.Where(x => x.idusuario == idUsuario).FirstOrDefaultAsync();
-
-        //        if (user == null)
-        //        {
-        //            return BadRequest("Usuario inválido.");
-        //        }
-
-        //        //Generar Password
-        //        var password = await CreatePassword(user.nombre, user.apellidopaterno, user.apellidomaterno, idUsuario);
-
-        //        //EncriptarPassword
-        //        var passEncript = password;
-        //        EncriptarPassword(ref passEncript);
-
-        //        user.password = passEncript;
-        //        _context.Update(user);
-        //        var actualizo = await _context.SaveChangesAsync();
-
-        //        if (actualizo > 0)
-        //            return Ok(new { password });
-        //        else
-        //            return NotFound("No hay datos por actualizar.");
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //        throw;
-        //    }
-        //}
-
-        //[HttpGet("ValidarCuenta/{username}/{password}")]
-        //public async Task<ActionResult<UserDTO>> ValidarCuenta([FromRoute] string username, string password)
-        //{
-
-        //    string passEncript = password;
-        //    EncriptarPassword(ref passEncript);
-
-        //    var user = await _context.Database.SqlQuery<UserDTO>($"SELECT su.idusuario, su.nombre, su.apellidopaterno, su.apellidomaterno, su.cuenta, su.iddependenciaorigen, su.idestado, su.rfc, su.correoelectronico, su.noempleado, ce.estado, cd.descripciondependencia dependenciaorigen, sur.idrol, sro.nombre as rol FROM seguridad_usuarios su INNER JOIN cp_estados ce on su.idestado = ce.id INNER JOIN catdependenciaorigen cd on su.iddependenciaorigen = cd.iddependenciaorigen INNER JOIN seguridad_usuario_roles sur on su.idusuario = sur.idusuario INNER JOIN seguridad_roles sro on sur.idrol = sro.idrol WHERE su.cuenta = {username} and su.password = {passEncript} and su.estatus = 1").FirstOrDefaultAsync();
-
-        //    if (user == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    else
-        //    {
-        //        return user;
-        //    }
-        //}
 
         #region Helpers
 
@@ -619,23 +448,6 @@ namespace Seguridad_API.Server.Controllers
             }
         }
 
-        private async Task<ResetDTO?> GetUserResetById(int id)
-        {
-            try
-            {
-                var user = await _context.Database.SqlQuery<ResetDTO?>(
-                 $"SELECT su.idusuario, su.cuenta FROM seguridad_usuarios su WHERE su.idusuario = {id}"
-                 ).FirstOrDefaultAsync();
-
-                return user;
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
         private async Task<int> GetNextIdUser()
         {
             try
@@ -653,6 +465,23 @@ namespace Seguridad_API.Server.Controllers
             }
         }
 
+        private async Task<bool> ExistUserAccount(string account)
+        {
+            try
+            {
+                if(string.IsNullOrEmpty(account))
+                    throw new ArgumentNullException("account");
+
+                bool ExisteCuenta = await _context.seguridad_usuarios.AnyAsync(x => x.cuenta!.ToUpper() == account.ToUpper());
+
+                return ExisteCuenta;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
 
         private void EncriptarPassword(ref string Pwd)
         {
@@ -704,130 +533,6 @@ namespace Seguridad_API.Server.Controllers
         {
             _logger.LogError($"Error {DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss")}: {(ex.InnerException != null ? ex.InnerException : ex.Message)}");
         }
-
-
-
-
-        //private async Task<List<UserDTO>?> GetUsersByName(UsuarioFiltroDTO usuarioFiltroDTO)
-        //{
-        //    try
-        //    {
-        //        var Nombre = $"{RemoverAcentos(usuarioFiltroDTO.Nombre)}";
-        //        var PrimerApellido = $"{RemoverAcentos(usuarioFiltroDTO.PrimerApellido)}";
-        //        var SegundoApellido = $"{RemoverAcentos(usuarioFiltroDTO.SegundoApellido)}";
-
-        //        var query = $"SELECT su.idusuario, su.nombre, su.apellidopaterno, su.apellidomaterno, su.cuenta, su.iddependenciaorigen, su.idestado, su.rfc, su.correoelectronico, su.noempleado, ce.estado, cd.descripciondependencia dependenciaorigen, sur.idrol, sro.nombre as rol " +
-        //            $"FROM seguridad_usuarios su " +
-        //            $"INNER JOIN cp_estados ce on su.idestado = ce.id " +
-        //            $"INNER JOIN catdependenciaorigen cd on su.iddependenciaorigen = cd.iddependenciaorigen " +
-        //            $"INNER JOIN seguridad_usuario_roles sur on su.idusuario = sur.idusuario " +
-        //            $"INNER JOIN seguridad_roles sro on sur.idrol = sro.idrol";
-
-        //        if (!string.IsNullOrEmpty(Nombre) || !string.IsNullOrEmpty(PrimerApellido) || !string.IsNullOrEmpty(SegundoApellido))
-        //        {
-        //            query += " WHERE 1=1 ";
-        //        }
-
-        //        if (!string.IsNullOrEmpty(Nombre))
-        //        {
-        //            query += $" AND su.nombre like '%{Nombre}%'";
-        //        }
-        //        if (!string.IsNullOrEmpty(PrimerApellido))
-        //        {
-        //            query += $" AND su.apellidopaterno like '%{PrimerApellido}%'";
-        //        }
-        //        if (!string.IsNullOrEmpty(SegundoApellido))
-        //        {
-        //            query += $" AND su.apellidomaterno like '%{SegundoApellido}%'";
-        //        }
-
-        //        query += $" AND su.estatus = 1";
-
-        //        var users = await _context.Database.SqlQuery<UserDTO>(FormattableStringFactory.Create(query))
-        //          .OrderByDescending(b => b.Nombre)
-        //          .ToListAsync();
-
-        //        return users;
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //        throw;
-        //    }
-        //}
-
-        //private async Task<string> CreateCuenta(IUser nuevoUsuarioDTO)
-        //{
-        //    try
-        //    {
-        //        //Obtiene nombre
-        //        var nombre = nuevoUsuarioDTO.Nombre.Split(' ').Select(x => x).FirstOrDefault();
-
-        //        //Crear cuenta con Nombre_PrimerApellido
-        //        var cuenta = nombre.Trim().ToUpper() + "_" + nuevoUsuarioDTO.ApellidoPaterno.Trim().ToUpper();
-        //        cuenta = RemoverAcentos(cuenta);
-
-        //        //Verificar si existe cuenta
-        //        var ExisteCuenta = await _context.seguridad_usuarios.AnyAsync(x => x.cuenta.ToUpper() == cuenta && x.estatus == true);
-
-        //        if (ExisteCuenta)
-        //        {
-        //            //Si existe cuenta => Crear cuenta con Nombre_SegundoApellido
-        //            cuenta = nombre.Trim().ToUpper() + "_" + nuevoUsuarioDTO.ApellidoMaterno.Trim().ToUpper();
-        //            cuenta = RemoverAcentos(cuenta);
-        //        }
-
-        //        //Verificar si existe cuenta
-        //        ExisteCuenta = await _context.seguridad_usuarios.AnyAsync(x => x.cuenta.ToUpper() == cuenta && x.estatus == true);
-
-        //        if (ExisteCuenta)
-        //        {
-        //            throw new Exception($"Ya existe la cuenta de usuario {cuenta}.");
-        //        }
-
-        //        return cuenta;
-        //    }
-        //    catch (Exception)
-        //    {
-
-        //        throw;
-        //    }
-        //}
-
-        //private async Task<string> CreatePassword(string nombre, string primerApellido, string segundoApellido, int idUsuario)
-        //{
-        //    if (string.IsNullOrEmpty(nombre))
-        //        throw new ArgumentNullException("nombre");
-        //    if (string.IsNullOrEmpty(primerApellido))
-        //        throw new ArgumentNullException("primerApellido");
-        //    if (string.IsNullOrEmpty(segundoApellido))
-        //        throw new ArgumentNullException("segundoApellido");
-        //    if (idUsuario <= 0)
-        //        throw new ArgumentNullException("idUsuario");
-
-        //    try
-        //    {
-        //        var password = string.Empty;
-
-        //        var arrayNombre = nombre.Split(' ');
-
-        //        Array.ForEach(arrayNombre, x => password += x.Substring(0, 1).ToUpper());
-
-        //        password += primerApellido.Substring(0, 1).ToUpper();
-        //        password += segundoApellido.Substring(0, 1).ToUpper();
-        //        password += idUsuario;
-        //        password += "_";
-        //        password += DateTime.Now.ToString("yy");
-        //        password = RemoverAcentos(password);
-
-        //        return password;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        throw;
-        //    }
-        //}
-
 
         #endregion
     }

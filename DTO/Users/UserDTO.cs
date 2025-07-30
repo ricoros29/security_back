@@ -21,7 +21,7 @@ namespace Seguridad_API.DTO.Users
         [Required(ErrorMessage = "{0} es obligatorio.")]
         public short? IdDependenciaOrigen { get; set; }
 
-        [Required(ErrorMessage = "{0} es obligatorio.")]
+        //[Required(ErrorMessage = "{0} es obligatorio.")]
         public string? NoEmpleado { get; set; }
         [Required(ErrorMessage = "{0} es obligatorio.")]
         public string? Rfc { get; set; }
