@@ -67,6 +67,12 @@ namespace Seguridad_API.Server.Controllers
                 newUserDTO.UnidadAdministrativa = newUserDTO.UnidadAdministrativa.Trim().ToUpper();
                 newUserDTO.Cuenta = newUserDTO.Cuenta.Trim().ToUpper();
 
+                if(newUserDTO.IdEstado == 33 && newUserDTO.IdDependenciaOrigen == 42)
+                {
+                    //Se sustituye por entidad CDMX porque asi lo guardaban antes en seguridad.
+                    newUserDTO.IdEstado = 9;
+                }
+
                 //Mapear
                 var user = _mapper.Map<seguridad_usuario>(newUserDTO);
 
@@ -161,17 +167,17 @@ namespace Seguridad_API.Server.Controllers
                 }
 
                 //Asignar nuevos valores
-                user.idusuario = userDTO.IdUsuario;
+                //user.idusuario = userDTO.IdUsuario;
                 user.nombre = userDTO.Nombre?.Trim().ToUpper();
                 user.apellidopaterno = userDTO.ApellidoPaterno?.Trim().ToUpper();
                 user.apellidomaterno = userDTO.ApellidoMaterno?.Trim().ToUpper();
                 user.rfc = userDTO.Rfc?.Trim().ToUpper();
-                user.idestado = userDTO.IdEstado;
-                user.iddependenciaorigen = userDTO.IdDependenciaOrigen;
-                user.idmodulo = userDTO.IdModulo;
+                //user.idestado = userDTO.IdEstado;
+                //user.iddependenciaorigen = userDTO.IdDependenciaOrigen;
+                //user.idmodulo = userDTO.IdModulo;
                 user.correoelectronico = userDTO.CorreoElectronico;
                 user.cargo = userDTO.Cargo?.Trim().ToUpper();
-                user.unidadadministrativa = userDTO.UnidadAdministrativa?.Trim().ToUpper();
+                //user.unidadadministrativa = userDTO.UnidadAdministrativa?.Trim().ToUpper();
                 user.estatus = userDTO.IdEstatus;
 
                 if (userDTO.IdEstatus == false)
@@ -191,7 +197,7 @@ namespace Seguridad_API.Server.Controllers
 
                         if (role != null)
                         {
-                            role.idusuario = userDTO.IdUsuario;
+                            //role.idusuario = userDTO.IdUsuario;
                             role.idrol = userDTO.IdRol.Value;
 
                             if (userDTO.IdEstatus == false)

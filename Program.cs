@@ -42,7 +42,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
 });
 
-var urls = builder.Configuration["CorsOrigins"] != null ? builder.Configuration["CorsOrigins"].Split(';', StringSplitOptions.RemoveEmptyEntries) : throw new InvalidOperationException("CorsOrigins Not Found.");
+var urls = builder.Configuration["CorsOrigins"] != null ? builder!.Configuration["CorsOrigins"]!.Split(';', StringSplitOptions.RemoveEmptyEntries) : throw new InvalidOperationException("CorsOrigins Not Found.");
 
 //Configurar CORS
 builder.Services.AddCors(opciones =>
